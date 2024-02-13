@@ -2,17 +2,24 @@ package com.example.cameraapp
 
 import MainScreen
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
@@ -30,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -40,10 +48,12 @@ import com.example.cameraapp.someofUi.PermissionDialog
 import com.example.cameraapp.someofUi.RecordAudioPermissionTextProvider
 import com.example.cameraapp.someofUi.cameraPerview
 import com.example.cameraapp.ui.theme.CameraAppTheme
+import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
+    private var recording:Recording? =null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,6 +175,9 @@ class MainActivity : ComponentActivity() {
             }
 
     }
+
+
+
 
 
 
