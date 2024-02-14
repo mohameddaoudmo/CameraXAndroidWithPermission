@@ -15,8 +15,10 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,26 +38,34 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.cameraapp.CameraViewModel
 import com.example.cameraapp.MainActivity.Companion.CAMERAX_PERMISSIONS
 import com.example.cameraapp.MainViewModel
+import com.example.cameraapp.classification.Classification
+import com.example.cameraapp.classification.LandmarkImageAnalyzer
+import com.example.cameraapp.classification.TfLiteLandMarkerClassification
 import com.example.cameraapp.someofUi.cameraPerview
 import kotlinx.coroutines.launch
 import java.io.File
@@ -148,17 +158,33 @@ private fun takePhoto (controller: LifecycleCameraController,onPhotoTake: (Bitma
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, viewModel: CameraViewModel) {
+    val context = LocalContext.current
 
     val scoffeldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+    var classifications by remember {
+        mutableStateOf(emptyList<Classification>())
+    }
+    val analyzer = remember {
+        LandmarkImageAnalyzer(
+            classifier = TfLiteLandMarkerClassification(
+                context = context
+            ),
+            onResults = {
+                classifications = it
+            }
+        )
+    }
 
 
-    val context = LocalContext.current
+
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or CameraController.VIDEO_CAPTURE
+                CameraController.IMAGE_CAPTURE or CameraController.VIDEO_CAPTURE or CameraController.IMAGE_ANALYSIS
             )
+            setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(context),
+            analyzer)
         }
 
     }
@@ -188,6 +214,23 @@ fun MainScreen(navController: NavController, viewModel: CameraViewModel) {
                 Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = null)
 
             }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            ) {
+                classifications.forEach {
+                    Text(
+                        text = it.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(8.dp),
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } }
             Row(
                 modifier = Modifier
                     .padding(16.dp)

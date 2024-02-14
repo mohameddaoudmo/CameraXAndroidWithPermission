@@ -31,7 +31,10 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +46,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.cameraapp.classification.Classification
+import com.example.cameraapp.classification.LandmarkImageAnalyzer
+import com.example.cameraapp.classification.TfLiteLandMarkerClassification
 import com.example.cameraapp.someofUi.CameraPermissionTextProvider
 import com.example.cameraapp.someofUi.PermissionDialog
 import com.example.cameraapp.someofUi.RecordAudioPermissionTextProvider
@@ -62,6 +68,7 @@ class MainActivity : ComponentActivity() {
             CameraAppTheme {
                 val viewModel = viewModel<MainViewModel>()
                 val cameraViewModel = viewModel<CameraViewModel>()
+
 
 
                 val dialogQueue = viewModel.visiblePermissionDialogQueue
