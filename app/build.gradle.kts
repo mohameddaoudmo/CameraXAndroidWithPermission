@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.accompanist:accompanist-permissions:0.24.9-beta")
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     val nav_version = "2.7.7"

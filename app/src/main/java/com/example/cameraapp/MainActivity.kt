@@ -46,20 +46,32 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.cameraapp.audiorecored.AudioPlayerImp
+import com.example.cameraapp.audiorecored.AudioRecordScreen
+import com.example.cameraapp.audiorecored.RecorderImpl
 import com.example.cameraapp.classification.Classification
 import com.example.cameraapp.classification.LandmarkImageAnalyzer
 import com.example.cameraapp.classification.TfLiteLandMarkerClassification
+import com.example.cameraapp.permissions.RequestMultiplePermissions
 import com.example.cameraapp.someofUi.CameraPermissionTextProvider
 import com.example.cameraapp.someofUi.PermissionDialog
 import com.example.cameraapp.someofUi.RecordAudioPermissionTextProvider
 import com.example.cameraapp.someofUi.cameraPerview
 import com.example.cameraapp.ui.theme.CameraAppTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     private var recording:Recording? =null
+    private val audioRecorder by lazy {
+    RecorderImpl(applicationContext)
+}
+
+private val player by lazy {
+    AudioPlayerImp(applicationContext)
+}
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,10 +117,21 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "screen1") {
             composable("screen1") { FristScreen(navController, viewModel) }
+            composable("AudioRecordScreen") { AudioRecordScreen(navController,player,audioRecorder) }
+            composable("Permissionbyaccompanist") { Permissionbyaccompanist(navController) }
+
             composable("screen2") { MainScreen(navController, cameraViewModel) }
         }
     }
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun Permissionbyaccompanist(navController: NavController){
+    RequestMultiplePermissions(
+        permissions = listOf(
+            Manifest.permission.RECORD_AUDIO
+        ), navController = navController )
 
+}
     @Composable
     fun FristScreen(navController: NavController, viewModel: MainViewModel) {
         // Your Composable content for Screen1
@@ -139,15 +162,16 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(onClick = {
+                navController.navigate("Permissionbyaccompanist")
 
             }) {
-                Text(text = "Request one permission")
+                Text(text = "Audio Recorder")
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
                 multiplePermissionResultLauncher.launch(CAMERAX_PERMISSIONS)
             }) {
-                Text(text = "Request multiple permission")
+                Text(text = "VideoRecorder")
             }
         }
 
