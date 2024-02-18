@@ -45,6 +45,8 @@ private fun HandleRequests(
     content: @Composable () -> Unit,
     navController: NavController
 ) {
+    val infoDialog = remember { mutableStateOf(false) }
+
     var shouldShowRationale by remember { mutableStateOf(false) }
     val result = multiplePermissionsState.permissions.all {
         shouldShowRationale = it.status.shouldShowRationale

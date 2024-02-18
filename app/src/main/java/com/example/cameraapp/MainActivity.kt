@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -134,6 +135,8 @@ fun Permissionbyaccompanist(navController: NavController){
 }
     @Composable
     fun FristScreen(navController: NavController, viewModel: MainViewModel) {
+        val infoDialog = remember { mutableStateOf(false) }
+
         // Your Composable content for Screen1
         val dialogQueue = viewModel.visiblePermissionDialogQueue
 
@@ -162,7 +165,18 @@ fun Permissionbyaccompanist(navController: NavController){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(onClick = {
-                navController.navigate("Permissionbyaccompanist")
+                when (PackageManager.PERMISSION_GRANTED) {
+                    ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) -> {
+                        // Permission is already granted, you can perform your operation here
+                        Log.d("CheckPermission", "Permission is already granted")
+
+                    }
+                    else -> {
+                        // Permission is not granted, you can request the permission here
+                        infoDialog.value = true
+
+                    }}
+//                navController.navigate("Permissionbyaccompanist")
 
             }) {
                 Text(text = "Audio Recorder")
@@ -173,6 +187,15 @@ fun Permissionbyaccompanist(navController: NavController){
             }) {
                 Text(text = "VideoRecorder")
             }
+        }
+        if (infoDialog.value) {
+            InfoDialog(
+                title = "Turn on Audio permission",
+                desc = "Explore the world without getting lost and keep the track of your location.",
+                onDismiss = {
+                    infoDialog.value = false
+                }, navigate = {navController.navigate("Permissionbyaccompanist")}
+            )
         }
 
         dialogQueue
